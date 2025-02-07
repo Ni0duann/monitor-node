@@ -80,7 +80,7 @@ async function initializeDatabase() {
     new Point('checkPointdata').intField('Page3PV', 0),
     new Point('checkPointdata').intField('Page3UV', 0),
     new Point('checkPointdata').intField('TotalPV', 0),
-    new Point('checkPointdata').intField('TotalUV', 0)
+    new Point('checkPointdata').intField('TotalUV', 0),
   ];
 
   try {
