@@ -1,4 +1,5 @@
 require('module-alias/register');
+require('dotenv').config();
 const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const Router = require('koa-router');
