@@ -28,76 +28,35 @@ const influxDB = new InfluxDB({
   token: influxConfig.token
 });
 
-//写查和删除数据的API分布在两个不同的Influx库中，需要分别导入.
 const writeApi = influxDB.getWriteApi(influxConfig.org, influxConfig.bucket);
 const queryApi = influxDB.getQueryApi(influxConfig.org);
 const deleteApi = new DeleteAPI(influxDB);
 
-// 设置仅允许列表白名单访问服务端和数据库
-// const whitelist = ['http://example1.com', 'http://example2.com'];
-// const corsOptions = {
-//     origin: function (origin, callback) {
-//         if (whitelist.indexOf(origin) !== -1 || !origin) {
-//             callback(null, true);
-//         } else {
-//             callback(new Error('Not allowed by CORS'));
-//         }
-//     }
-// };
-// app.use(cors(corsOptions));
-
-// 解决跨域问题，允许所有url的请求
+// 跨域配置
 app.use(cors());
 app.use(koaBody());
 
-
-// 中间件：获取用户信息 (浏览器、IP、时间、UUID)
+// 中间件：注入用户信息
 app.use(async (ctx, next) => {
-  // 生成 UUID
   ctx.state.uuid = uuidv4();
-  // 获取 IP 地址（需处理代理情况）
   ctx.state.ip = ctx.headers['x-forwarded-for'] || ctx.ip || 'unknown';
-  // 解析 User-Agent
   const ua = new UAParser(ctx.headers['user-agent']);
   ctx.state.userAgent = {
-    browser: ua.getBrowser(),    // { name: 'Chrome', version: '116.0.0.0' }
-    os: ua.getOS(),             // { name: 'Windows', version: '10' }
-    device: ua.getDevice(),     // { type: 'desktop', vendor: undefined }
-    engine: ua.getEngine()      // { name: 'Blink', version: '116.0.0.0' }
+    browser: ua.getBrowser(),
+    os: ua.getOS(),
+    device: ua.getDevice(),
+    engine: ua.getEngine()
   };
-  // 记录请求时间
   ctx.state.requestTime = new Date().toISOString();
   await next();
 });
 
-// 初始化数据库数据
-async function initializeDatabase() {
-  const points = [
-    new Point('checkPointdata').intField('Page1PV', 0),
-    new Point('checkPointdata').intField('Page1UV', 0),
-    new Point('checkPointdata').intField('Page2PV', 0),
-    new Point('checkPointdata').intField('Page2UV', 0),
-    new Point('checkPointdata').intField('Page3PV', 0),
-    new Point('checkPointdata').intField('Page3UV', 0),
-    new Point('checkPointdata').intField('TotalPV', 0),
-    new Point('checkPointdata').intField('TotalUV', 0),
-  ];
-
-  try {
-    writeApi.writePoints(points);
-    await writeApi.flush();
-    console.log('✅Influx 埋点数据初始化成功！');
-  } catch (err) {
-    console.error('❌Influx 埋点数据初始化失败:', err);
-  }
-}
-
 // 数据结构转换函数
 function transformData(data, userInfo) {
   const points = [];
-  const timestamp = new Date().getTime() * 1000000; // 纳秒时间戳
+  const timestamp = new Date().getTime() * 1000000;
 
-  // 添加用户信息 Tag
+  // 公共标签
   const commonTags = {
     ip: userInfo.ip,
     uuid: userInfo.uuid,
@@ -106,105 +65,55 @@ function transformData(data, userInfo) {
     deviceType: userInfo.userAgent.device.type || 'desktop'
   };
 
-  // 处理navigation数据
-  const navPoint = new Point('navigation')
+  //-----------------------------
+  // 核心性能指标（TTFB、LCP、FCP）
+  //-----------------------------
+  const perfPoint = new Point('web_perf')
     .timestamp(timestamp)
     .tag('type', 'performance')
-    // 添加用户信息 Tag
     .tag('ip', commonTags.ip)
     .tag('uuid', commonTags.uuid)
     .tag('browser', commonTags.browser)
     .tag('os', commonTags.os)
     .tag('device_type', commonTags.deviceType)
+    .floatField('ttfb', data.performance.ttfb)
+    .floatField('lcp_render_time', data.performance.lcpRenderTime)
+    .floatField('fcp_start_time', data.performance.fcpStartTime);
 
-    //性能监控数据
-    .intField('redirectCount', data.performance.navigation.redirectCount)
-    .floatField('dnsLookupTime', data.performance.navigation.dnsLookupTime)
-    .floatField('tcpConnectionTime', data.performance.navigation.tcpConnectionTime)
-    .floatField('ttfb', data.performance.navigation.ttfb);
-  points.push(navPoint);
+  points.push(perfPoint);
 
-  // 处理FCP数据
-  data.performance.fcp.forEach((metric, index) => {
-    const fcpPoint = new Point('fcp')
-      .timestamp(timestamp)
-      .tag('metric', metric.name)
-      // 添加用户信息 Tag
-      .tag('ip', commonTags.ip)
-      .tag('uuid', commonTags.uuid)
-      .tag('browser', commonTags.browser)
-      .tag('os', commonTags.os)
-
-      .tag('device_type', commonTags.deviceType)
-      .floatField('startTime', metric.startTime);
-
-    points.push(fcpPoint);
-  });
-
-  // 处理resources数据
-  data.performance.resources.forEach(resource => {
-    const resPoint = new Point('resource')
-      .timestamp(timestamp)
-      .tag('name', resource.name)
-      .tag('type', resource.initiatorType)
-      // 添加用户信息 Tag
-      .tag('ip', commonTags.ip)
-      .tag('uuid', commonTags.uuid)
-      .tag('browser', commonTags.browser)
-      .tag('os', commonTags.os)
-      .tag('device_type', commonTags.deviceType)
-
-      .floatField('duration', resource.duration)
-      .floatField('startTime', resource.startTime)
-      .floatField('responseEnd', resource.responseEnd);
-    points.push(resPoint);
-  });
-
-  // 处理LCP数据
-  if (data.performance.lcp?.lcp) {
-    const lcp = data.performance.lcp.lcp;
-    const lcpPoint = new Point('lcp')
-      .timestamp(timestamp)
-
-      // 添加用户信息 Tag
-      .tag('ip', commonTags.ip)
-      .tag('uuid', commonTags.uuid)
-      .tag('browser', commonTags.browser)
-      .tag('os', commonTags.os)
-
-      .tag('device_type', commonTags.deviceType)
-      .floatField('startTime', lcp.startTime)
-      .floatField('renderTime', lcp.renderTime)
-      .floatField('loadTime', lcp.loadTime)
-      .intField('size', lcp.size)
-      .tag('id', lcp.id)
-      .tag('url', lcp.url);
-    points.push(lcpPoint);
-  };
-
-  // 处理白屏数据
+  //-----------------------------
+  // 白屏计数
+  //-----------------------------
   if (data.performance.whiteScreenCount !== undefined) {
-    const whiteScreenPoint = new Point('whiteScreen')
+    const whiteScreenPoint = new Point('web_perf')
       .timestamp(timestamp)
-      .intField('whiteScreenCount', data.performance.whiteScreenCount);
+      .tag('type', 'white_screen')
+      .tag('ip', commonTags.ip)
+      .tag('uuid', commonTags.uuid)
+      .tag('browser', commonTags.browser)
+      .tag('os', commonTags.os)
+      .tag('device_type', commonTags.deviceType)
+      .intField('count', data.performance.whiteScreenCount);
     points.push(whiteScreenPoint);
   }
 
   return points;
 }
 
-// 性能监控数据上报路由
+// 性能数据上报路由
 router.post('/api/report', async (ctx) => {
   try {
     const { performance, errors } = ctx.request.body;
 
-    if (!performance?.navigation) {
+    // 校验必要字段
+    if (!performance?.ttfb || !performance?.lcpRenderTime || !performance?.fcpStartTime) {
       ctx.status = 400;
-      ctx.body = { error: '性能监控数据丢失！' };
+      ctx.body = { error: '缺少关键性能指标（TTFB/LCP/FCP）！' };
       return;
     }
 
-    // 获取中间件注入的用户信息
+    // 获取用户信息
     const userInfo = {
       ip: ctx.state.ip,
       uuid: ctx.state.uuid,
@@ -212,9 +121,8 @@ router.post('/api/report', async (ctx) => {
       requestTime: ctx.state.requestTime
     };
 
-    // 转换数据结构
+    // 转换并写入数据
     const points = transformData({ performance, errors }, userInfo);
-    // 写入InfluxDB
     writeApi.writePoints(points);
     await writeApi.flush();
     ctx.status = 201;
@@ -222,32 +130,35 @@ router.post('/api/report', async (ctx) => {
 
   } catch (err) {
     ctx.status = 500;
-    ctx.body = { error: 'Internal server error' };
+    ctx.body = { error: '服务器内部错误' };
     console.error('上报失败:', err);
   }
 });
 
-// 前端获取数据库的性能数据路由
+// 获取性能数据路由
 router.get('/api/performance', async (ctx) => {
   try {
     const limit = parseInt(ctx.query.limit) || 100;
-    const fluxQuery = `
+    const query = `
       from(bucket: "${influxConfig.bucket}")
         |> range(start: -30d)
-        |> filter(fn: (r) => r._measurement == "navigation")
+        |> filter(fn: (r) => r._measurement == "web_perf")
         |> sort(columns: ["_time"], desc: true)
         |> limit(n: ${limit})
     `;
 
     const data = await new Promise((resolve, reject) => {
       const result = [];
-      queryApi.queryRows(fluxQuery, {
+      queryApi.queryRows(query, {
         next(row, tableMeta) {
           const obj = tableMeta.toObject(row);
-
           result.push({
             timestamp: obj._time,
-            [obj._field]: obj._value
+            type: obj.type,       // 区分 performance/white_screen
+            field: obj._field,    // 字段名（如 ttfb）
+            value: obj._value,    // 数值
+            device: obj.device_type,
+            browser: obj.browser
           });
         },
         error: reject,
@@ -258,8 +169,8 @@ router.get('/api/performance', async (ctx) => {
     ctx.body = { success: true, data };
   } catch (err) {
     ctx.status = 500;
-    ctx.body = { error: 'Failed to fetch data' };
-    console.error('查询失败:', err);
+    ctx.body = { error: '查询失败' };
+    console.error('查询错误:', err);
   }
 });
 
