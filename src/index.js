@@ -1,7 +1,6 @@
 require('module-alias/register');
 require('dotenv').config();
 const Koa = require('koa');
-const bodyParser = require('koa-bodyparser');
 const Router = require('koa-router');
 const cors = require('@koa/cors');
 const { koaBody } = require('koa-body');
@@ -205,6 +204,133 @@ router.post('/api/page-view', async (ctx) => {
   }
 });
 
+// 初始化 pv 和 uv 数据
+const pvUvData = {
+  pv1: 0,
+  uv1: new Set(),
+  pv2: 0,
+  uv2: new Set(),
+  pv3: 0,
+  uv3: new Set(),
+  pvTotal: 0,
+  uvTotal: new Set()
+};
+
+// 更新 pv 和 uv 数据的路由
+router.post('/api/update-pv-uv/:eventId', async (ctx) => {
+  try {
+    const eventId = ctx.params.eventId;
+    const ip = ctx.state.ip;
+    switch (eventId) {
+      case '1':
+        pvUvData.pv1++;
+        if (!pvUvData.uv1.has(ip)) {
+          pvUvData.uv1.add(ip);
+        }
+        break;
+      case '2':
+        pvUvData.pv2++;
+        if (!pvUvData.uv2.has(ip)) {
+          pvUvData.uv2.add(ip);
+        }
+        break;
+      case '3':
+        pvUvData.pv3++;
+        if (!pvUvData.uv3.has(ip)) {
+          pvUvData.uv3.add(ip);
+        }
+        break;
+      default:
+        ctx.status = 400;
+        ctx.body = { error: '无效的事件ID' };
+        return;
+    }
+    // 更新总 pv 和 uv
+    pvUvData.pvTotal++;
+    if (!pvUvData.uvTotal.has(ip)) {
+      pvUvData.uvTotal.add(ip);
+    }
+    ctx.status = 200;
+    ctx.body = { success: true };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { error: '更新数据失败' };
+    console.error('更新失败:', err);
+  }
+});
+
+// 获取 pv 和 uv 数据的路由
+router.get('/api/get-pv-uv', async (ctx) => {
+  try {
+    const data = {
+      pv1: pvUvData.pv1,
+      uv1: pvUvData.uv1.size,
+      pv2: pvUvData.pv2,
+      uv2: pvUvData.uv2.size,
+      pv3: pvUvData.pv3,
+      uv3: pvUvData.uv3.size,
+      pvTotal: pvUvData.pvTotal,
+      uvTotal: pvUvData.uvTotal.size
+    };
+    ctx.body = { success: true, data };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { error: '获取数据失败' };
+    console.error('获取失败:', err);
+  }
+});
+
+// 接收test页面发送来的停留时长数据的路由
+router.post('/api/report-duration', async (ctx) => {
+  try {
+    const { pagePath, duration } = ctx.request.body;
+    // 创建 InfluxDB 数据点
+    const point = new Point('page_duration')
+      .tag('page_path', pagePath)
+      .intField('duration', duration);
+    // 写入 InfluxDB
+    writeApi.writePoint(point);
+    await writeApi.flush();
+    ctx.status = 201;
+    ctx.body = { success: true };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { error: '保存停留时长数据失败' };
+    console.error('保存失败:', err);
+  }
+});
+
+// web数据平台页面获取停留时长数据的路由
+router.get('/api/get-page-durations', async (ctx) => {
+  try {
+    const query = `
+            from(bucket: "${influxConfig.bucket}")
+                |> range(start: -30d)
+                |> filter(fn: (r) => r._measurement == "page_duration")
+                |> group(columns: ["page_path"])
+                |> mean(column: "_value")
+        `;
+    const data = await new Promise((resolve, reject) => {
+      const result = [];
+      queryApi.queryRows(query, {
+        next(row, tableMeta) {
+          const obj = tableMeta.toObject(row);
+          result.push({
+            pagePath: obj.page_path,
+            averageDuration: obj._value
+          });
+        },
+        error: reject,
+        complete() { resolve(result); }
+      });
+    });
+    ctx.body = { success: true, data };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { error: '查询停留时长数据失败' };
+    console.error('查询错误:', err);
+  }
+});
 
 // // 新增路由：将白屏计数加 1
 // router.post('/api/incrementWhiteScreenCount', async (ctx) => {
