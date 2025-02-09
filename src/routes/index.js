@@ -8,7 +8,7 @@ const router = new Router();
 
 // 聚合所有路由
 router.use(performanceRoutes.routes());
-router.use(pageViewRoutes.routes());
+// router.use(pageViewRoutes.routes());
 router.use(pvuvRoutes.routes());
 router.use(durationRoutes.routes());
 
