@@ -1,6 +1,6 @@
 const Router = require('koa-router');
 const performanceRoutes = require('./performance');
-const pageViewRoutes = require('./pageView');
+// const pageViewRoutes = require('./pageView');
 const pvuvRoutes = require('./pvuv');
 const durationRoutes = require('./duration');
 
