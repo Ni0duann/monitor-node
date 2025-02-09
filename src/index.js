@@ -332,55 +332,6 @@ router.get('/api/get-page-durations', async (ctx) => {
   }
 });
 
-// // 新增路由：将白屏计数加 1
-// router.post('/api/incrementWhiteScreenCount', async (ctx) => {
-//     try {
-//         // 先查询当前的白屏计数
-//         const fluxQuery = `
-//             from(bucket: "${influxConfig.bucket}")
-//             |> range(start: -30d)
-//             |> filter(fn: (r) => r._measurement == "whiteScreen")
-//             |> sum(column: "_value")
-//         `;
-
-//         const currentCountResult = await new Promise((resolve, reject) => {
-//             const result = [];
-//             queryApi.queryRows(fluxQuery, {
-//                 next(row, tableMeta) {
-//                     const obj = tableMeta.toObject(row);
-//                     result.push(obj._value);
-//                 },
-//                 error: reject,
-//                 complete() { resolve(result); }
-//             });
-//         });
-
-//         let currentCount = 0;
-//         if (currentCountResult.length > 0) {
-//             currentCount = currentCountResult[0];
-//         }
-
-//         // 将计数加 1
-//         const newCount = currentCount + 1;
-
-//         const timestamp = new Date().getTime() * 1000000; // 纳秒时间戳
-//         const whiteScreenPoint = new Point('whiteScreen')
-//             .timestamp(timestamp)
-//             .intField('count', newCount);
-
-//         // 写入InfluxDB
-//         writeApi.writePoint(whiteScreenPoint);
-//         await writeApi.flush();
-
-//         ctx.status = 200;
-//         ctx.body = { success: true };
-//     } catch (err) {
-//         ctx.status = 500;
-//         ctx.body = { error: 'Failed to increment white screen count' };
-//         console.error('Increment white screen count failed:', err);
-//     }
-// });
-
 // 删除性能数据路由
 router.delete('/api/performance/:timestamp', async (ctx) => {
   try {
