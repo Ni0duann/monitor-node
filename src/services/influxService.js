@@ -1,4 +1,5 @@
 const { InfluxDB, Point } = require('@influxdata/influxdb-client');
+const { DeleteAPI } = require('@influxdata/influxdb-client-apis');
 const config = require('../config/influx');
 
 class InfluxService {
@@ -7,9 +8,9 @@ class InfluxService {
             url: config.url,
             token: config.token
         });
-
         this.writeApi = this.influxDB.getWriteApi(config.org, config.bucket);
         this.queryApi = this.influxDB.getQueryApi(config.org);
+        this.deleteApi = new DeleteAPI(this.influxDB);
     }
 
     async writePoints(points) {
@@ -27,6 +28,20 @@ class InfluxService {
                 error: reject,
                 complete: () => resolve(result)
             });
+        });
+    }
+
+    async deleteData(timestamp) {
+        const start = new Date(timestamp).toISOString();
+        const stop = new Date(new Date(timestamp).getTime() + 1).toISOString();
+        await this.deleteApi.postDelete({
+            org: config.org,
+            bucket: config.bucket,
+            body: {
+                start,
+                stop,
+                predicate: '_measurement="navigation"'
+            }
         });
     }
 }
