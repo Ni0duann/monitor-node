@@ -109,25 +109,45 @@ class PvuvController {
         }
     }
 
+    //可以根据
     async getPvUv(ctx) {
         try {
-            const { timestamp, pagePath, datatype, rangeTime } = ctx.query;
+            const {
+                timestamp,
+                pagePath,
+                datatype,
+                rangeTime,
+                os = 'All',
+                device_type = 'All',
+                browser = 'All',
+                ip = 'All'
+            } = ctx.query;
             if (!timestamp || !pagePath || !datatype || !rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
                 ctx.status = 400;
                 ctx.body = { error: '缺少必要流量数据参数或参数格式错误！' };
                 return;
             }
-
+            let filterConditions = `r._measurement == "flowData" and r.pagePath == "${pagePath}" and r.datatype == "${datatype}"`;
+            if (os !== 'All') {
+                filterConditions += ` and r.os == "${os}"`;
+            }
+            if (device_type !== 'All') {
+                filterConditions += ` and r.device_type == "${device_type}"`;
+            }
+            if (browser !== 'All') {
+                filterConditions += ` and r.browser == "${browser}"`;
+            }
+            if (ip !== 'All') {
+                filterConditions += ` and r.ip == "${ip}"`;
+            }
             const query = `
                 from(bucket: "monitor data")
                   |> range(start: -${rangeTime}d)
-                  |> filter(fn: (r) => r._measurement == "pvuv" and r.pagePath == "${pagePath}" and r.datatype == "${datatype}")
+                  |> filter(fn: (r) => ${filterConditions})
                   |> sum(column: "addCount")
             `;
-
             const data = await influxService.queryData(query);
             const totalCount = data.length > 0 ? data[0]._value : 0;
-
             ctx.body = { success: true, data: { totalCount } };
         } catch (err) {
             ctx.status = 500;
@@ -136,5 +156,6 @@ class PvuvController {
         }
     }
 }
+
 
 module.exports = new PvuvController();
