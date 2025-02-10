@@ -5,7 +5,7 @@ class DurationController {
         try {
             const { pagePath, duration } = ctx.request.body;
 
-            const point = new Point('page_duration')
+            const point = new Point('pageDuration')
                 .tag('page_path', pagePath)
                 .intField('duration', duration);
 
@@ -15,8 +15,8 @@ class DurationController {
             ctx.body = { success: true };
         } catch (err) {
             ctx.status = 500;
-            ctx.body = { error: '保存停留时长数据失败' };
-            console.error('保存失败:', err);
+            ctx.body = { error: '服务器内部错误,上传停留时长数据失败' };
+            console.error('保存停留时长数据失败:', err);
         }
     }
 
@@ -25,7 +25,7 @@ class DurationController {
             const query = `
         from(bucket: "monitor data")
           |> range(start: -30d)
-          |> filter(fn: (r) => r._measurement == "page_duration")
+          |> filter(fn: (r) => r._measurement == "pageDuration")
           |> group(columns: ["page_path"])
           |> mean(column: "_value")
       `;
