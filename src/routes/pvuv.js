@@ -4,7 +4,7 @@ const pvuvController = require('../controllers/pvuvController');
 
 const router = new Router({ prefix: '/api' });
 
-router.post('/update-pv-uv/:eventId', pvuvController.updatePvUv);
-router.get('/get-pv-uv', pvuvController.getPvUv);
+router.post('/push_flowData', pvuvController.updatePvUv);
+router.get('/get_flowData', pvuvController.getPvUv);
 
 module.exports = router;
