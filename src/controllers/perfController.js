@@ -19,8 +19,8 @@ class PerfController {
             ctx.body = { success: true };
         } catch (err) {
             ctx.status = 500;
-            ctx.body = { error: '服务器内部错误' };
-            console.error('上报失败:', err);
+            ctx.body = { error: '服务器内部错误,上传性能监控数据失败' };
+            console.error('上报性能监控数据失败:', err);
         }
     }
 
@@ -30,7 +30,7 @@ class PerfController {
             const query = `
         from(bucket: "monitor data")
           |> range(start: -30d)
-          |> filter(fn: (r) => r._measurement == "web_perf")
+          |> filter(fn: (r) => r._measurement == "performanceData")
           |> sort(columns: ["_time"], desc: true)
           |> limit(n: ${limit})
       `;
@@ -39,8 +39,8 @@ class PerfController {
             ctx.body = { success: true, data };
         } catch (err) {
             ctx.status = 500;
-            ctx.body = { error: '查询失败' };
-            console.error('查询错误:', err);
+            ctx.body = { error: '查询性能监控数据失败' };
+            console.error('查询性能监控数据错误:', err);
         }
     }
 
@@ -52,8 +52,8 @@ class PerfController {
             ctx.body = { success: true };
         } catch (err) {
             ctx.status = 500;
-            ctx.body = { error: '删除数据失败' };
-            console.error('删除失败:', err);
+            ctx.body = { error: '删除性能监控数据失败' };
+            console.error('删除性能监控数据失败:', err);
         }
     }
 }

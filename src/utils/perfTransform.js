@@ -4,10 +4,9 @@ const { generateCommonTags } =require('../config/commoninfo')
 function transformData(data, userInfo) {
     const points = [];
     const timestamp = new Date().getTime() * 1000000;
-
     const commonTags = generateCommonTags(userInfo);
 
-    const perfPoint = new Point('web_perf')
+    const perfPoint = new Point('performanceData')
         .timestamp(timestamp)
         .tag('type', 'performance')
         .tag('ip', commonTags.ip)
@@ -22,7 +21,7 @@ function transformData(data, userInfo) {
     points.push(perfPoint);
 
     if (data.performance.whiteScreenCount !== undefined) {
-        const whiteScreenPoint = new Point('web_perf')
+        const whiteScreenPoint = new Point('performanceData')
             .timestamp(timestamp)
             .tag('type', 'white_screen')
             .tag('ip', commonTags.ip)

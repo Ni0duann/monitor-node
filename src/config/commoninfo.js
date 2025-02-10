@@ -1,4 +1,4 @@
-// utils/commonTags.js
+// 每次请求都会携带的公共参数，用户的IP UUID 浏览器 操作系统 设备类型.
 function generateCommonTags(userInfo) {
     return {
         ip: userInfo.ip,
