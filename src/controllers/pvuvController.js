@@ -81,7 +81,7 @@
 // module.exports = new PvuvController();
 
 
-const { transformData } = require('../utils/dataTransformer');
+const { transformData } = require('../utils/pvuvTransform');
 const influxService = require('../services/influxService');
 
 class PvuvController {
@@ -112,7 +112,7 @@ class PvuvController {
     async getPvUv(ctx) {
         try {
             const { timestamp, pagePath, datatype, rangeTime } = ctx.query;
-            if (!timestamp || !pagePath || !datatype ||!rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
+            if (!timestamp || !pagePath || !datatype || !rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
                 ctx.status = 400;
                 ctx.body = { error: '缺少必要参数或参数格式错误！' };
                 return;
@@ -126,7 +126,7 @@ class PvuvController {
             `;
 
             const data = await influxService.queryData(query);
-            const totalCount = data.length > 0? data[0]._value : 0;
+            const totalCount = data.length > 0 ? data[0]._value : 0;
 
             ctx.body = { success: true, data: { totalCount } };
         } catch (err) {

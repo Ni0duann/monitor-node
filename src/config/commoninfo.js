@@ -1,8 +1,12 @@
-const commonTags = {
-    ip: userInfo.ip,
-    uuid: userInfo.uuid,
-    browser: userInfo.userAgent.browser.name,
-    os: userInfo.userAgent.os.name,
-    deviceType: userInfo.userAgent.device.type || 'desktop'
-};
-module.exports=commonTags
+// utils/commonTags.js
+function generateCommonTags(userInfo) {
+    return {
+        ip: userInfo.ip,
+        uuid: userInfo.uuid,
+        browser: userInfo.userAgent.browser.name,
+        os: userInfo.userAgent.os.name,
+        deviceType: userInfo.userAgent.device.type || 'desktop'
+    };
+}
+
+module.exports = { generateCommonTags };
