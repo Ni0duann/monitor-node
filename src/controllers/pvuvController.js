@@ -104,8 +104,8 @@ class PvuvController {
             ctx.body = { success: true };
         } catch (err) {
             ctx.status = 500;
-            ctx.body = { error: '更新数据失败' };
-            console.error('更新失败:', err);
+            ctx.body = { error: '更新流量数据失败' };
+            console.error('更新流量失败:', err);
         }
     }
 
@@ -114,7 +114,7 @@ class PvuvController {
             const { timestamp, pagePath, datatype, rangeTime } = ctx.query;
             if (!timestamp || !pagePath || !datatype || !rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
                 ctx.status = 400;
-                ctx.body = { error: '缺少必要参数或参数格式错误！' };
+                ctx.body = { error: '缺少必要流量数据参数或参数格式错误！' };
                 return;
             }
 
@@ -131,8 +131,8 @@ class PvuvController {
             ctx.body = { success: true, data: { totalCount } };
         } catch (err) {
             ctx.status = 500;
-            ctx.body = { error: '查询数据失败' };
-            console.error('查询错误:', err);
+            ctx.body = { error: '查询流量数据失败' };
+            console.error('查询流量数据错误:', err);
         }
     }
 }
