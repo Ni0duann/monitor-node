@@ -5,14 +5,9 @@ class DurationController {
     async reportDuration(ctx) {
         try {
             const { pagePath, duration } = ctx.request.body;
-
             const point = transformData({ pagePath, duration }, ctx.state)
-            // const point = new Point('pageDuration')
-            //     .tag('pagePath', pagePath)
-            //     .intField('duration', duration);
 
             await influxService.writePoints([point]);
-
             ctx.status = 201;
             ctx.body = { success: true };
         } catch (err) {
@@ -36,17 +31,18 @@ class DurationController {
             const query = `
                 from(bucket: "monitor data")
                   |> range(start: -${parseInt(rangeTime)}d)
-                  |> filter(fn: (r) => r._measurement == "pageDuration" and r.pagePath == "${pagePath}")
+                  |> filter(fn: (r) => r._measurement == "Duration" and r.pagePath == "${pagePath}")
                   |> group(columns: ["pagePath"])
-                  |> mean(column: "duration") // 直接计算 duration 字段的平均值
+                  |> mean(column: "_value") // 直接计算 duration 字段的平均值
             `;
             console.log('执行的查询语句:', query);
             const data = await influxService.queryData(query);
+            console.log('data:', data);
             ctx.body = { success: true, data };
         } catch (err) {
             ctx.status = 500;
             ctx.body = { error: '查询停留时长数据失败' };
-            console.error('查询错误:', err);
+            console.error('查询停留时长数据错误:', err);
         }
     }
 }

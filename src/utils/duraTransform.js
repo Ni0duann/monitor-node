@@ -13,14 +13,15 @@ function transformData(data, userInfo) {
         .floatField('duration', data.duration)
 
         .tag('uuid', commonTags.uuid)
-        // .tag('ip', commonTags.ip || '::1')
-        // .tag('browser', commonTags.browser || 'Unknown')
-        // .tag('os', commonTags.os || 'Unknown')
-        // .tag('device_type', commonTags.deviceType || 'desktop')
-        .tag('ip', 'All')
-        .tag('browser', 'All')
-        .tag('os', 'All')
-        .tag('device_type', 'All')
+        .tag('ip', commonTags.ip || 'Unknown')
+        .tag('browser', commonTags.browser || 'Unknown')
+        .tag('os', commonTags.os || 'Unknown')
+        .tag('device_type', commonTags.deviceType || 'Unknown')
+
+        // .tag('ip', 'All')
+        // .tag('browser', 'All')
+        // .tag('os', 'All')
+        // .tag('device_type', 'All')
 
     return durationPoint;
 }
