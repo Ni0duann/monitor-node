@@ -5,6 +5,6 @@ const router = new Router({ prefix: '/api' });
 
 router.post('/push_pref', perfController.pushPerformance);
 router.get('/get_pref', perfController.getPerformance);
-router.delete('/performance/:timestamp', perfController.deletePerformance);
+router.delete('/delete_pref/:timestamp', perfController.deletePerformance);
 
 module.exports = router;
