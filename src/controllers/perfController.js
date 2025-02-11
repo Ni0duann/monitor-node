@@ -27,9 +27,15 @@ class PerfController {
     async getPerformance(ctx) {
         try {
             const limit = parseInt(ctx.query.limit) || 100;
+            const rangeTime = parseInt(ctx.query.rangeTime) || 30; 
+            if (isNaN(rangeTime) || rangeTime <= 0) {
+                ctx.status = 400;
+                ctx.body = { error: 'rangeTime参数必须是正整数！' };
+                return;
+            }
             const query = `
         from(bucket: "monitor data")
-          |> range(start: -30d)
+          |> range(start: -${rangeTime}d)
           |> filter(fn: (r) => r._measurement == "performanceData")
           |> sort(columns: ["_time"], desc: true)
           |> limit(n: ${limit})
