@@ -135,7 +135,11 @@ console.log({timestamp,pagePath,datatype,addCount})
                 ctx.body = { error: '缺少必要流量数据参数或参数格式错误！' };
                 return;
             }
-            let filterConditions = `r._measurement == "flowData" and r.pagePath == "${pagePath}" and r.datatype == "${datatype}"`;
+            let filterConditions = `r._measurement == "flowData" and r.datatype == "${datatype}"`;
+            // 如果 pagePath 不为 'total'，才添加 pagePath 的筛选条件
+            if (pagePath !== 'total') {
+                filterConditions += ` and r.pagePath == "${pagePath}"`;
+            }
             if (os !== 'All') {
                 filterConditions += ` and r.os == "${os}"`;
             }
