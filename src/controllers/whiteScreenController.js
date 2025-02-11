@@ -5,6 +5,7 @@ class WhiteScreenController {
     async reportWhiteScreen(ctx) {
         try {
             const { pageUrl } = ctx.request.body;
+            const addCount = 1; 
             const point = transformData({ pageUrl}, ctx.state);
 
             await influxService.writePoints([point]);
