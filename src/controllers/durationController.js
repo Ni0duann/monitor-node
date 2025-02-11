@@ -6,9 +6,10 @@ class DurationController {
         try {
             const { pagePath, duration } = ctx.request.body;
 
-            const point = new Point('pageDuration')
-                .tag('pagePath', pagePath)
-                .intField('duration', duration);
+            const point = transformData({ pagePath, duration }, ctx.state)
+            // const point = new Point('pageDuration')
+            //     .tag('pagePath', pagePath)
+            //     .intField('duration', duration);
 
             await influxService.writePoints([point]);
 
@@ -23,7 +24,8 @@ class DurationController {
 
     async getDurations(ctx) {
         try {
-            const { pagePath, rangeTime } = ctx.request.body;
+            // const { pagePath, rangeTime } = ctx.request.body;
+            const { pagePath, rangeTime } = ctx.query;
             // 检查参数是否有效
             if (!pagePath || !rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
                 ctx.status = 400;
