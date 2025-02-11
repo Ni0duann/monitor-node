@@ -1,3 +1,4 @@
+const { transformData } = require('../utils/duraTransform');
 const influxService = require('../services/influxService');
 
 class DurationController {
@@ -6,7 +7,7 @@ class DurationController {
             const { pagePath, duration } = ctx.request.body;
 
             const point = new Point('pageDuration')
-                .tag('page_path', pagePath)
+                .tag('pagePath', pagePath)
                 .intField('duration', duration);
 
             await influxService.writePoints([point]);
@@ -22,14 +23,22 @@ class DurationController {
 
     async getDurations(ctx) {
         try {
+            const { pagePath, rangeTime } = ctx.request.body;
+            // 检查参数是否有效
+            if (!pagePath || !rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
+                ctx.status = 400;
+                ctx.body = { error: '缺少必要参数或参数格式错误！' };
+                return;
+            }
+            // 构建带有 pagePath 过滤条件的查询语句
             const query = `
-        from(bucket: "monitor data")
-          |> range(start: -30d)
-          |> filter(fn: (r) => r._measurement == "pageDuration")
-          |> group(columns: ["page_path"])
-          |> mean(column: "_value")
-      `;
-
+                from(bucket: "monitor data")
+                  |> range(start: -${parseInt(rangeTime)}d)
+                  |> filter(fn: (r) => r._measurement == "pageDuration" and r.pagePath == "${pagePath}")
+                  |> group(columns: ["pagePath"])
+                  |> mean(column: "duration") // 直接计算 duration 字段的平均值
+            `;
+            console.log('执行的查询语句:', query);
             const data = await influxService.queryData(query);
             ctx.body = { success: true, data };
         } catch (err) {
@@ -39,5 +48,6 @@ class DurationController {
         }
     }
 }
+
 
 module.exports = new DurationController();

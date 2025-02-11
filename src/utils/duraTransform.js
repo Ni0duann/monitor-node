@@ -21,7 +21,6 @@ function transformData(data, userInfo) {
         .tag('browser', 'All')
         .tag('os', 'All')
         .tag('device_type', 'All')
-        .intField('addCount', parseInt(data.addCount));
 
     return durationPoint;
 }
