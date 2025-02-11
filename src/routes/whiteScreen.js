@@ -1,9 +1,9 @@
 const Router = require('koa-router');
-const durationController = require('../controllers/durationController');
+const whiteScreenController = require('../controllers/whiteScreenController');
 
 const router = new Router({ prefix: '/api' });
 
-router.post('/push_WS', durationController.reportWhiteScreen);
-router.get('/get_WS', durationController.getWhiteScreen);
+router.post('/push_WS', whiteScreenController.reportWhiteScreen);
+router.get('/get_WS', whiteScreenController.getWhiteScreen);
 
 module.exports = router;
