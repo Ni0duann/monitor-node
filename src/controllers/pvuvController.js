@@ -80,13 +80,8 @@
 
 // module.exports = new PvuvController();
 
-const Koa = require('koa');
-const bodyParser = require('koa-bodyparser');
 const { transformData } = require('../utils/pvuvTransform');
 const influxService = require('../services/influxService');
-
-// const app = new Koa();
-// app.use(bodyParser());
 
 class PvuvController {
     async updatePvUv(ctx) {
@@ -96,13 +91,15 @@ class PvuvController {
             const timestamp = new Date().toISOString();
             const addCount = ctx.request.body.addCount || 1;
 
+console.log({timestamp,pagePath,datatype,addCount})
+
             const point = transformData({
                 timestamp,
                 pagePath,
                 datatype,
                 addCount
             }, ctx.state);
-
+            console.log('写入的数据点:', point); // 输出写入的数据点
             await influxService.writePoints([point]);
 
             ctx.status = 201;
@@ -121,12 +118,12 @@ class PvuvController {
                 pagePath,
                 datatype,
                 rangeTime,
-                os = 'All',
-                device_type = 'All',
-                browser = 'All',
-                ip = 'All'
+                os = 'Unknown',
+                device_type = 'desktop',
+                browser = 'Unknown',
+                ip = '::1'
             } = ctx.request.body;
-            console.log('ctx.query', ctx.query)
+            console.log('ctx.request.body', ctx.request.body)
             // console.log('ctx.request.body',ctx.request.body)
             if ( !pagePath || !datatype || !rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
                 ctx.status = 400;
@@ -134,16 +131,16 @@ class PvuvController {
                 return;
             }
             let filterConditions = `r._measurement == "flowData" and r.pagePath == "${pagePath}" and r.datatype == "${datatype}"`;
-            if (os !== 'All') {
+            if (os !== 'Windows') {
                 filterConditions += ` and r.os == "${os}"`;
             }
-            if (device_type !== 'All') {
+            if (device_type !== 'desktop') {
                 filterConditions += ` and r.device_type == "${device_type}"`;
             }
-            if (browser !== 'All') {
+            if (browser !== 'Chrome') {
                 filterConditions += ` and r.browser == "${browser}"`;
             }
-            if (ip !== 'All') {
+            if (ip !== '::1') {
                 filterConditions += ` and r.ip == "${ip}"`;
             }
             const query = `
@@ -153,6 +150,7 @@ class PvuvController {
                   |> sum(column: "addCount")
             `;
             const data = await influxService.queryData(query);
+            console.log('data',data)
             const totalCount = data.length > 0 ? data[0]._value : 0;
             ctx.body = { success: true, data: { totalCount } };
         } catch (err) {

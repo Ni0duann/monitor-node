@@ -11,12 +11,12 @@ function transformData(data, userInfo) {
         .timestamp(timestamp)
         .tag('pagePath', data.pagePath)
         .tag('datatype', data.datatype)
-        .tag('ip', commonTags.ip)
+        .tag('ip', commonTags.ip || '::1')
         .tag('uuid', commonTags.uuid)
-        .tag('browser', commonTags.browser)
-        .tag('os', commonTags.os)
-        .tag('device_type', commonTags.deviceType)
-        .intField('addCount', data.addCount);
+        .tag('browser', commonTags.browser || 'Unknown')
+        .tag('os', commonTags.os || 'Unknown')
+        .tag('device_type', commonTags.deviceType || 'desktop')
+        .intField('addCount', parseInt(data.addCount));
 
     return pvuvPoint;
 }
