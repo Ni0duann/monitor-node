@@ -3,7 +3,7 @@ const durationController = require('../controllers/durationController');
 
 const router = new Router({ prefix: '/api' });
 
-router.post('/report-duration', durationController.reportDuration);
-router.get('/get-page-durations', durationController.getDurations);
+router.post('/pushDuration', durationController.reportDuration);
+router.get('/getDurations', durationController.getDurations);
 
 module.exports = router;
