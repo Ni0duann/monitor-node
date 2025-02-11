@@ -80,6 +80,7 @@
 
 // module.exports = new PvuvController();
 
+
 const { transformData } = require('../utils/pvuvTransform');
 const influxService = require('../services/influxService');
 
@@ -118,10 +119,14 @@ console.log({timestamp,pagePath,datatype,addCount})
                 pagePath,
                 datatype,
                 rangeTime,
-                os = 'Unknown',
-                device_type = 'desktop',
-                browser = 'Unknown',
-                ip = '::1'
+                // os = 'Windows',
+                // device_type = 'desktop',
+                // browser = 'Chrome',
+                // ip = '::1'
+                os = 'All',
+                device_type = 'All',
+                browser = 'All',
+                ip = 'All'
             } = ctx.request.body;
             console.log('ctx.request.body', ctx.request.body)
             // console.log('ctx.request.body',ctx.request.body)
@@ -131,16 +136,16 @@ console.log({timestamp,pagePath,datatype,addCount})
                 return;
             }
             let filterConditions = `r._measurement == "flowData" and r.pagePath == "${pagePath}" and r.datatype == "${datatype}"`;
-            if (os !== 'Windows') {
+            if (os !== 'All') {
                 filterConditions += ` and r.os == "${os}"`;
             }
-            if (device_type !== 'desktop') {
+            if (device_type !== 'All') {
                 filterConditions += ` and r.device_type == "${device_type}"`;
             }
-            if (browser !== 'Chrome') {
+            if (browser !== 'All') {
                 filterConditions += ` and r.browser == "${browser}"`;
             }
-            if (ip !== '::1') {
+            if (ip !== 'All') {
                 filterConditions += ` and r.ip == "${ip}"`;
             }
             const query = `

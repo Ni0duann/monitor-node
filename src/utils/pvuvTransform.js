@@ -11,11 +11,15 @@ function transformData(data, userInfo) {
         .timestamp(timestamp)
         .tag('pagePath', data.pagePath)
         .tag('datatype', data.datatype)
-        .tag('ip', commonTags.ip || '::1')
         .tag('uuid', commonTags.uuid)
-        .tag('browser', commonTags.browser || 'Unknown')
-        .tag('os', commonTags.os || 'Unknown')
-        .tag('device_type', commonTags.deviceType || 'desktop')
+        // .tag('ip', commonTags.ip || '::1')
+        // .tag('browser', commonTags.browser || 'Unknown')
+        // .tag('os', commonTags.os || 'Unknown')
+        // .tag('device_type', commonTags.deviceType || 'desktop')
+        .tag('ip', 'All')
+        .tag('browser', 'All')
+        .tag('os', 'All')
+        .tag('device_type', 'All')
         .intField('addCount', parseInt(data.addCount));
 
     return pvuvPoint;
