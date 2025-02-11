@@ -87,7 +87,7 @@ const influxService = require('../services/influxService');
 class PvuvController {
     async updatePvUv(ctx) {
         try {
-            const { pagePath, datatype } = ctx.request.body;
+            const { pagePath, datatype } = ctx.query;
             // console.log('ctx.request.body', ctx.request.body)
             const timestamp = new Date().toISOString();
             const addCount = ctx.request.body.addCount || 1;
@@ -127,8 +127,8 @@ console.log({timestamp,pagePath,datatype,addCount})
                 device_type = 'All',
                 browser = 'All',
                 ip = 'All'
-            } = ctx.request.body;
-            console.log('ctx.request.body', ctx.request.body)
+            } = ctx.query;
+            console.log('ctx.query', ctx.query)
             // console.log('ctx.request.body',ctx.request.body)
             if ( !pagePath || !datatype || !rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
                 ctx.status = 400;
@@ -152,11 +152,12 @@ console.log({timestamp,pagePath,datatype,addCount})
                 from(bucket: "monitor data")
                   |> range(start: -${rangeTime}d)
                   |> filter(fn: (r) => ${filterConditions})
-                  |> sum(column: "addCount")
+                  |> sum(column: "_value")
             `;
             const data = await influxService.queryData(query);
             console.log('data',data)
-            const totalCount = data.length > 0 ? data[0]._value : 0;
+            console.log('data.length', data.length)
+            const totalCount = data.length > 0 ? data.length : 0;
             ctx.body = { success: true, data: { totalCount } };
         } catch (err) {
             ctx.status = 500;
@@ -165,6 +166,5 @@ console.log({timestamp,pagePath,datatype,addCount})
         }
     }
 }
-
 
 module.exports = new PvuvController();

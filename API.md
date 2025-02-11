@@ -150,17 +150,10 @@
 #### 响应示例
 ```json
 {
-  "success": true,
-  "data": {
-    "pv1": 100,
-    "uv1": 50,
-    "pv2": 200,
-    "uv2": 100,
-    "pv3": 300,
-    "uv3": 150,
-    "pvTotal": 600,
-    "uvTotal": 200
-  }
+    "success": true,
+    "data": {
+        "totalCount": 6
+    }
 }
 ```
 
