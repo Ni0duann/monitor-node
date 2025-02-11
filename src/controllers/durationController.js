@@ -1,4 +1,4 @@
-const { transformData } = require('../utils/duraTransform');
+const { transformData } = require('../utils/durationTransform');
 const influxService = require('../services/influxService');
 
 class DurationController {
