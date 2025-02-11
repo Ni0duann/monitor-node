@@ -77,7 +77,7 @@
 }
 ```
 
- ### 3. 页面浏览事件上报接口
+### 2. 白屏URL上报接口
  - **接口地址**：`POST /api/page-view`
 - **功能描述**：接收客户端上报的页面浏览事件，并将其写入 **InfluxDB** 数据库。
 #### 请求参数
@@ -106,7 +106,61 @@
 #### 响应示例
 ```json
 {
-  "success": true
+    "success": true,
+    "data": [
+        {
+            "result": "_result",
+            "table": 0,
+            "_start": "2025-02-10T15:57:15.7834214Z",
+            "_stop": "2025-02-11T15:57:15.7834214Z",
+            "_value": 4,
+            "pageUrl": "/page1"
+        }
+    ]
+}
+```
+
+
+ ### 3. 白屏URL查询接口
+ - **接口地址**：`POST /api/page-view`
+- **功能描述**：接收客户端上报的页面浏览事件，并将其写入 **InfluxDB** 数据库。
+#### 请求参数
+| 参数名 | 类型 | 是否必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| `page_path` | string | 是 | 页面路径 |
+| `browser` | string | 是 | 浏览器名称 |
+| `os` | string | 是 | 操作系统名称 |
+| `device_type` | string | 是 | 设备类型 |
+| `timestamp` | string | 是 | 浏览时间戳 |
+
+#### 请求示例
+```json
+{
+  "page_path": "/home",
+  "browser": "Chrome",
+  "os": "Windows 10",
+  "device_type": "desktop",
+  "timestamp": "2025-02-10T12:00:00Z"
+}
+```
+#### 响应参数
+| 参数名 | 类型 | 描述 |
+| ---- | ---- | ---- |
+| `success` | boolean | 请求是否成功 |
+#### 响应示例
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "result": "_result",
+            "table": 0,
+            "_start": "2025-02-10T15:57:15.7834214Z",
+            "_stop": "2025-02-11T15:57:15.7834214Z",
+            "_value": 4,
+            "pageUrl": "/page1"
+        }
+    ]
 }
 ```
 
