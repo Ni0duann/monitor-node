@@ -2,7 +2,7 @@ const { transformData } = require('../utils/perfTransform');
 const influxService = require('../services/influxService');
 
 class PerfController {
-    async report(ctx) {
+    async pushPerformance(ctx) {
         try {
             const { performance } = ctx.request.body;
             if (!performance?.ttfb || !performance?.lcpRenderTime || !performance?.fcpStartTime) {

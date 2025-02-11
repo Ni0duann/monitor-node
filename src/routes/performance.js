@@ -3,8 +3,8 @@ const perfController = require('../controllers/perfController');
 
 const router = new Router({ prefix: '/api' });
 
-router.post('/report', perfController.report);
-router.get('/performance', perfController.getPerformance);
+router.post('/push_pref', perfController.pushPerformance);
+router.get('/get_pref', perfController.getPerformance);
 router.delete('/performance/:timestamp', perfController.deletePerformance);
 
 module.exports = router;
