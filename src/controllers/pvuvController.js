@@ -80,14 +80,19 @@
 
 // module.exports = new PvuvController();
 
-
+const Koa = require('koa');
+const bodyParser = require('koa-bodyparser');
 const { transformData } = require('../utils/pvuvTransform');
 const influxService = require('../services/influxService');
+
+// const app = new Koa();
+// app.use(bodyParser());
 
 class PvuvController {
     async updatePvUv(ctx) {
         try {
             const { pagePath, datatype } = ctx.request.body;
+            // console.log('ctx.request.body', ctx.request.body)
             const timestamp = new Date().toISOString();
             const addCount = ctx.request.body.addCount || 1;
 
@@ -113,7 +118,6 @@ class PvuvController {
     async getPvUv(ctx) {
         try {
             const {
-                timestamp,
                 pagePath,
                 datatype,
                 rangeTime,
@@ -121,8 +125,10 @@ class PvuvController {
                 device_type = 'All',
                 browser = 'All',
                 ip = 'All'
-            } = ctx.query;
-            if (!timestamp || !pagePath || !datatype || !rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
+            } = ctx.request.body;
+            console.log('ctx.query', ctx.query)
+            // console.log('ctx.request.body',ctx.request.body)
+            if ( !pagePath || !datatype || !rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
                 ctx.status = 400;
                 ctx.body = { error: '缺少必要流量数据参数或参数格式错误！' };
                 return;

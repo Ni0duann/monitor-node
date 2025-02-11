@@ -23,6 +23,7 @@ class PerfController {
         }
     }
 
+    //获取性能数据
     async getPerformance(ctx) {
         try {
             const limit = parseInt(ctx.query.limit) || 100;
@@ -43,6 +44,7 @@ class PerfController {
         }
     }
 
+    //根据时间戳删除性能数据
     async deletePerformance(ctx) {
         try {
             const timestamp = ctx.params.timestamp;
