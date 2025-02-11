@@ -3,7 +3,7 @@ const whiteScreenController = require('../controllers/whiteScreenController');
 
 const router = new Router({ prefix: '/api' });
 
-router.post('/push_WS', whiteScreenController.reportWhiteScreen);
-router.get('/get_WS', whiteScreenController.getWhiteScreen);
+router.post('/push/WhiteScreen', whiteScreenController.reportWhiteScreen);
+router.get('/get/WhiteScreen', whiteScreenController.getWhiteScreen);
 
 module.exports = router;
