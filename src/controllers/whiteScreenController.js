@@ -33,7 +33,7 @@ class WhiteScreenController {
                   |> range(start: -${parseInt(rangeTime)}d)
                   |> filter(fn: (r) => r._measurement == "WhiteScreen" and r.pageUrl == "${pageUrl}")
                   |> group(columns: ["pageUrl"])
-                  |> mean(column: "_value") // 直接计算白屏时长字段的平均值
+                  |> sum(column: "_value")
             `;
             console.log('执行的查询语句:', query);
             const data = await influxService.queryData(query);
