@@ -31,8 +31,7 @@
   "performance": {
     "ttfb": 100,
     "lcpRenderTime": 200,
-    "fcpStartTime": 150,
-    "whiteScreenCount": 1
+    "fcpStartTime": 150
   },
   "errors": {}
 }
@@ -372,11 +371,15 @@
 | `timestamp` | string | 是 | 时间戳 |
  
 #### 请求示例
-``http://localhost:5501/api/performance/2025-02-10T12:00:00Z``
+`http://localhost:5500/api/delete_pref/:timestamp/${Path Variables}`
+#### 注意这的`/:timestamp`并不是真实参数，他就是字符串，后面的Path Variables才是需要填写的时间戳，格式为`2025-02-12T07:19:50.000Z`;
+
+
 #### 响应参数
 | 参数名 | 类型 | 描述 |
 | ---- | ---- | ---- |
 | `success` | boolean | 请求是否成功 |
+
 #### 响应示例
 ```json
 {
