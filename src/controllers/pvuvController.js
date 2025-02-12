@@ -9,8 +9,6 @@ class PvuvController {
             const timestamp = new Date().toISOString();
             const addCount = ctx.request.body.addCount || 1;
 
-console.log({timestamp,pagePath,datatype,addCount})
-
             const point = transformData({
                 timestamp,
                 pagePath,
@@ -47,7 +45,7 @@ console.log({timestamp,pagePath,datatype,addCount})
             const rangeTime = ctx.query.rangeTime||7
             console.log('ctx.query', ctx.query)
             // console.log('ctx.request.body',ctx.request.body)
-            if ( !pagePath || !datatype || !rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
+            if ( !pagePath || !datatype) {
                 ctx.status = 400;
                 ctx.body = { error: '缺少必要流量数据参数或参数格式错误！' };
                 return;
@@ -76,10 +74,10 @@ console.log({timestamp,pagePath,datatype,addCount})
                   |> sum(column: "_value")
             `;
             const data = await influxService.queryData(query);
-            console.log('data',data)
-            console.log('data.length', data.length)
+            // console.log('data',data)
+            // console.log('data.length', data.length)
             const totalCount = data.length > 0 ? data.length : 0;
-            ctx.body = { success: true, data: { totalCount } };
+            ctx.body = { success: true, totalCount };
         } catch (err) {
             ctx.status = 500;
             ctx.body = { error: '查询流量数据失败' };

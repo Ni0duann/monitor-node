@@ -134,7 +134,7 @@
 ```
 #### 注意：前端人员暂时只需关注`response.data._field`和`response.data._value`
 
-### 2. 白屏URL上报接口
+### 3. 白屏URL上报接口
  - **请求方法**：`POST`
  - **接口地址**：`/api/push/WhiteScreen`
 - **功能描述**：接收客户端上报的页面浏览事件，并将其写入 **InfluxDB** 数据库。
@@ -175,7 +175,7 @@
 }
 ```
 
- ### 3. 白屏次数URL查询接口
+ ### 4. 白屏次数URL查询接口
  - **接口地址**：`POST /api/page-view`
 - **功能描述**：接收客户端上报的页面浏览事件，并将其写入 **InfluxDB** 数据库。
 #### 请求参数
@@ -227,7 +227,7 @@
 }
 ```
 
-  ### 4. 更新上传流量数据 PV/UV 数据接口
+  ### 5. 上传流量数据 PV/UV 数据接口
   - **请求方法**：`POST`
  - **接口地址**：`/api/push_flowData`
 - **功能描述**：根据`pagePath` 更新 PV 和 UV 数据。
@@ -254,6 +254,7 @@
 | 参数名 | 类型 | 描述 |
 | ---- | ---- | ---- |
 | `success` | boolean | 请求是否成功 |
+
 #### 响应示例
 ```json
 {
@@ -261,35 +262,38 @@
 }
 ```
 
- ### 5. 获取流量数据 PV/UV 数据接口
+ ### 6. 获取流量数据 PV/UV 数据接口
   - **请求方法**：`GET`
  - **接口地址**：`/api/get_flowData`
 - **功能描述**：获取当前的 PV 和 UV 数据。
  ### 请求参数 
- | 参数名 | 类型 | 描述 |
-| ---- | ---- | ---- |
-| `pagePath`| string | 请求数据的页面如`page1` `page2` `page3` `total`|
-| `dataType` | string | PV 和 UV 数据对象,如`pv` `uv` |
-| `rangeTime` | Int(整数) | 往前查询的时间范围,如`1`表示过去1天（过去24h）的数据，`7`表示过去7天的数据 |
+ | 参数名 | 类型 | 是否必填 | 描述 |
+| ---- | ---- | ---- | ---- |
+| `pagePath`| string | 是 | 请求数据的页面如`page1` `page2` `page3` `total`|
+| `dataType` | string | 是 | PV 和 UV 数据对象,如`pv` `uv` |
+| `rangeTime` | Int(整数) |  否 |往前查询的时间范围,如`1`表示过去1天（过去24h）的数据，`7`表示过去7天的数据 |
 
 #### 请求示例
-``http://localhost:5501/api/get-pv-uv``
+`http://localhost:5500/api/get_flowData?datatype=pv&pagePath=page3`
+或
+`http://localhost:5500/api/get_flowData?pagePath=total&datatype=pv`
+
 #### 响应参数
 | 参数名 | 类型 | 描述 |
 | ---- | ---- | ---- |
 | `success `| boolean | 请求是否成功 |
-| `data` | object | PV 和 UV 数据对象 |
+| `totalCount` | Number | 所选时间、页面的PV 或 UV 数据的次数 |
+
 #### 响应示例
 ```json
 {
     "success": true,
-    "data": {
-        "totalCount": 6
-    }
+    "totalCount": 11
 }
+
 ```
 
- ### 6. 页面停留时长数据上报接口
+ ### 7. 页面停留时长数据上报接口
  - **接口地址**：`POST /api/report-duration`
 - **功能描述**：接收客户端上报的页面停留时长数据，并将其写入 **InfluxDB** 数据库。
 #### 请求参数
@@ -316,7 +320,7 @@
 }
 ```
 
- ### 7.  获取页面停留时长数据接口
+ ### 8.  获取页面停留时长数据接口
  - **接口地址**：`GET /api/get-page-durations`
 - **功能描述**：从 **InfluxDB** 数据库中查询最近 30（可以选择任意时间范围）天的页面**平均**停留时长数据。
 #### 请求参数：
@@ -350,7 +354,7 @@
 
 ```
 
- ### 8.  删除性能监控数据接口
+ ### 9.  删除性能监控数据接口
  - **接口地址**：`DELETE /api/performance/:timestamp`
 - **功能描述**：根据时间戳删除 **InfluxDB** 数据库中的性能数据。
 #### 请求参数：
