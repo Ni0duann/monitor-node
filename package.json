@@ -16,7 +16,15 @@
     "dotenv": "^16.4.7",
     "koa": "^2.15.3",
     "koa-bodyparser": "^4.4.1",
-    "koa-router": "^13.0.1"
+    "koa-router": "^13.0.1",
+    "@influxdata/influxdb-client": "^1.35.0",
+    "@influxdata/influxdb-client-apis": "^1.35.0",
+    "@koa/cors": "^5.0.0",
+    "@koa/router": "^13.1.0",
+    "koa-body": "^6.0.1",
+    "mongoose": "^8.9.5",
+    "ua-parser-js": "^2.0.1",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "eslint": "^9.19.0",
