@@ -10,7 +10,10 @@
   "author": "",
   "license": "ISC",
   "_moduleAliases": {
-    "@": "./src"
+    "@src": "src",
+    "@constants": "src/constants",
+    "@routes": "src/routes",
+    "@utils": "src/utils"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
