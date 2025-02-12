@@ -19,8 +19,8 @@ class DurationController {
 
     async getDurations(ctx) {
         try {
-            // const { pagePath, rangeTime } = ctx.request.body;
-            const { pagePath, rangeTime } = ctx.query;
+            const pagePath = ctx.query.pagePath;
+            const rangeTime = ctx.query.rangeTime||7;
             // 检查参数是否有效
             if (!pagePath || !rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
                 ctx.status = 400;
@@ -35,9 +35,9 @@ class DurationController {
                   |> group(columns: ["pagePath"])
                   |> mean(column: "_value") // 直接计算 duration 字段的平均值
             `;
-            console.log('执行的查询语句:', query);
+
             const data = await influxService.queryData(query);
-            console.log('data:', data);
+
             ctx.body = { success: true, data };
         } catch (err) {
             ctx.status = 500;

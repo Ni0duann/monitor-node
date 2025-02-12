@@ -23,7 +23,7 @@ class WhiteScreenController {
             const pageUrl = ctx.query.pageUrl;
             const rangeTime = ctx.query.rangeTime ||7;
             // 检查参数是否有效
-            if (!pageUrl) {
+            if (!pageUrl || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
                 ctx.status = 400;
                 ctx.body = { error: '缺少必要白屏查询参数pageUrl或参数格式错误！' };
                 return;
