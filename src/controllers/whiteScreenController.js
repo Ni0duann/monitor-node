@@ -37,6 +37,10 @@ class WhiteScreenController {
                       |> filter(fn: (r) => r._measurement == "WhiteScreen")
                       |> sum(column: "_value")
                 `;
+                //total直接看数组长度就是总白屏次数
+                const data = await influxService.queryData(query);
+                const totalCount = data.length > 0 ? data.length : 0;
+                ctx.body = { success: true, totalCount };
             } else {
                 // 正常情况，保留 group 条件
                 query = `
@@ -46,11 +50,11 @@ class WhiteScreenController {
                       |> group(columns: ["pageUrl"])
                       |> sum(column: "_value")
                 `;
+                //正常情况看data._value就是某页面的白屏次数
+                const data = await influxService.queryData(query);
+                ctx.body = { success: true, data };
             }
-            console.log('执行的查询语句:', query);
-            const data = await influxService.queryData(query);
-            console.log('data:', data);
-            ctx.body = { success: true, data };
+
         } catch (err) {
             ctx.status = 500;
             ctx.body = { error: '查询白屏时长数据失败' };
