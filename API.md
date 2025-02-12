@@ -371,8 +371,8 @@
 | `timestamp` | string | 是 | 时间戳 |
  
 #### 请求示例
-`http://localhost:5500/api/delete_pref/:timestamp/${Path Variables}`
-#### 注意这的`/:timestamp`并不是真实参数，他就是字符串，后面的Path Variables才是需要填写的时间戳，格式为`2025-02-12T07:19:50.000Z`;
+`http://localhost:5500/api/delete_pref/${timestamp}`
+#### 注意这的`timestamp`是需要填写的时间戳，前端请求时请使用模版字符串格式为`2025-02-12T07:19:50.000Z`;
 
 
 #### 响应参数
