@@ -20,21 +20,33 @@ class WhiteScreenController {
 
     async getWhiteScreen(ctx) {
         try {
-            const { pageUrl, rangeTime } = ctx.query;
+            const pageUrl = ctx.query.pageUrl;
+            const rangeTime = ctx.query.rangeTime ||7;
             // 检查参数是否有效
-            if (!pageUrl || !rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
+            if (!pageUrl) {
                 ctx.status = 400;
-                ctx.body = { error: '缺少必要白屏查询参数或参数格式错误！' };
+                ctx.body = { error: '缺少必要白屏查询参数pageUrl或参数格式错误！' };
                 return;
             }
-            // 构建带有 pageUrl 过滤条件的查询语句
-            const query = `
-                from(bucket: "monitor data")
-                  |> range(start: -${parseInt(rangeTime)}d)
-                  |> filter(fn: (r) => r._measurement == "WhiteScreen" and r.pageUrl == "${pageUrl}")
-                  |> group(columns: ["pageUrl"])
-                  |> sum(column: "_value")
-            `;
+            let query;
+            if (pageUrl === 'total') {
+                // 当 pageUrl 为 'total' 时，去掉 group 条件
+                query = `
+                    from(bucket: "monitor data")
+                      |> range(start: -${parseInt(rangeTime)}d)
+                      |> filter(fn: (r) => r._measurement == "WhiteScreen")
+                      |> sum(column: "_value")
+                `;
+            } else {
+                // 正常情况，保留 group 条件
+                query = `
+                    from(bucket: "monitor data")
+                      |> range(start: -${parseInt(rangeTime)}d)
+                      |> filter(fn: (r) => r._measurement == "WhiteScreen" and r.pageUrl == "${pageUrl}")
+                      |> group(columns: ["pageUrl"])
+                      |> sum(column: "_value")
+                `;
+            }
             console.log('执行的查询语句:', query);
             const data = await influxService.queryData(query);
             console.log('data:', data);

@@ -45,7 +45,7 @@
 #### 响应示例
 ```json
 {
-  "success": true
+    "success": true
 }
 ```
 
@@ -61,7 +61,7 @@
 | `rangeTime` | number | 否 | 查询的时间范围，默认值为 7，即过去七天的数据 |
 | `startTime` | 日期字符串格式例如：`2025/02/12 12:30:00`或 `2025-02-12T12:30:00.000Z` | 否 | 查询时间范围的开始时间 |
 | `endTime` | 日期字符串格式例如：`2025/02/12 13:30:00`或 `2025-02-12T13:30:00.000Z` | 否 | 查询时间范围的结束时间 |
-#### 注意！ 不可同时输入 `rangeTime`和 (`startTime,endTime`)要么只输入 `rangeTime`，要么只输入`startTime`和`endTime`，`startTime`和`endTime`两者的日期格式必须相同！开始日期必须小于结束日期!
+#### 注意:！ 不可同时输入 `rangeTime`和 (`startTime,endTime`)要么只输入 `rangeTime`，要么只输入`startTime`和`endTime`，`startTime`和`endTime`两者的日期格式必须相同！开始日期必须小于结束日期!
 
 #### 请求示例
 `http://localhost:5500/api/get_pref?rangeTime=10`
@@ -70,33 +70,94 @@
 或
 `http://localhost:5500/api/get_pref?startTime=2025-02-12T12:30:00.000Z&endTime=2025-02-12T13:30:00.000Z`
 
+#### 响应参数
+| 参数名 | 类型 | 描述 |
+|:--------|:-----------|:---------|
+| `success` | boolean | 请求是否成功 |
+| `data` | Array | 根据要求返回的数据 |
+
+#### 响应示例
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "result": "_result",
+            "table": 0,
+            "_start": "2025-02-02T05:41:37.4702265Z",
+            "_stop": "2025-02-12T05:41:37.4702265Z",
+            "_time": "2025-02-10T16:33:50.405Z",
+            "_value": 123.3000000000466,
+            "_field": "fcp_start_time",
+            "_measurement": "performanceData",
+            "browser": "Chrome",
+            "device_type": "desktop",
+            "ip": "::ffff:127.0.0.1",
+            "os": "Windows",
+            "type": "performance",
+            "uuid": "1b11c7ba-a04c-4377-ab6b-fb4c7ab119ba"
+        },
+        {
+            "result": "_result",
+            "table": 1,
+            "_start": "2025-02-02T05:41:37.4702265Z",
+            "_stop": "2025-02-12T05:41:37.4702265Z",
+            "_time": "2025-02-10T16:33:50.405Z",
+            "_value": 234.3000000000466,
+            "_field": "lcp_render_time",
+            "_measurement": "performanceData",
+            "browser": "Chrome",
+            "device_type": "desktop",
+            "ip": "::ffff:127.0.0.1",
+            "os": "Windows",
+            "type": "performance",
+            "uuid": "1b11c7ba-a04c-4377-ab6b-fb4c7ab119ba"
+        },
+        {
+            "result": "_result",
+            "table": 2,
+            "_start": "2025-02-02T05:41:37.4702265Z",
+            "_stop": "2025-02-12T05:41:37.4702265Z",
+            "_time": "2025-02-10T16:33:50.405Z",
+            "_value": 345.3000000000466,
+            "_field": "ttfb",
+            "_measurement": "performanceData",
+            "browser": "Chrome",
+            "device_type": "desktop",
+            "ip": "::ffff:127.0.0.1",
+            "os": "Windows",
+            "type": "performance",
+            "uuid": "1b11c7ba-a04c-4377-ab6b-fb4c7ab119ba"
+        },
+        ]
+}
+```
+#### 注意：前端人员暂时只需关注`response.data._field`和`response.data._value`
+
 ### 2. 白屏URL上报接口
  - **请求方法**：`POST`
- - **接口地址**：`/api/page-view`
+ - **接口地址**：`/api/push/WhiteScreen`
 - **功能描述**：接收客户端上报的页面浏览事件，并将其写入 **InfluxDB** 数据库。
 #### 请求参数
 | 参数名 | 类型 | 是否必填 | 描述 |
 | ---- | ---- | ---- | ---- |
-| `page_path` | string | 是 | 页面路径 |
-| `browser` | string | 是 | 浏览器名称 |
-| `os` | string | 是 | 操作系统名称 |
-| `device_type` | string | 是 | 设备类型 |
-| `timestamp` | string | 是 | 浏览时间戳 |
+| `page_path` | string | 是 | 页面路径例如`page1` `page2` `page3`表示出现白屏的页面地址 |
+| `browser` | string | 否 | 浏览器名称 |
+| `os` | string | 否 | 操作系统名称 |
+| `device_type` | string | 否 | 设备类型 |
 
 #### 请求示例
 ```json
 {
-  "page_path": "/home",
-  "browser": "Chrome",
-  "os": "Windows 10",
-  "device_type": "desktop",
-  "timestamp": "2025-02-10T12:00:00Z"
+      "pageUrl": "page1"
 }
 ```
+
 #### 响应参数
 | 参数名 | 类型 | 描述 |
 | ---- | ---- | ---- |
 | `success` | boolean | 请求是否成功 |
+
 #### 响应示例
 ```json
 {
@@ -128,19 +189,16 @@
 | `timestamp` | string | 是 | 浏览时间戳 |
 
 #### 请求示例
-```json
-{
-  "page_path": "/home",
-  "browser": "Chrome",
-  "os": "Windows 10",
-  "device_type": "desktop",
-  "timestamp": "2025-02-10T12:00:00Z"
-}
-```
+`http://localhost:5500/api/get/WhiteScreen?pageUrl=page2`
+或
+`http://localhost:5500/api/get/WhiteScreen?pageUrl=page1&rangeTime=3`
+
 #### 响应参数
 | 参数名 | 类型 | 描述 |
 | ---- | ---- | ---- |
 | `success` | boolean | 请求是否成功 |
+| `data` | Array | 根据要求返回的数据 |
+
 #### 响应示例
 ```json
 {
@@ -152,7 +210,7 @@
             "_start": "2025-02-10T15:57:15.7834214Z",
             "_stop": "2025-02-11T15:57:15.7834214Z",
             "_value": 4,
-            "pageUrl": "/page1"
+            "pageUrl": "page1"
         }
     ]
 }
