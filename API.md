@@ -13,7 +13,7 @@
 
 ### 1. 性能监控数据上报接口
 - **请求方法**：`POST `
-- **接口地址**：`/api/report`
+- **接口地址**：`/api/push_pref`
 - **功能描述**：接收客户端上报的网页性能数据，并将其写入 **InfluxDB** 数据库。
 
 #### 请求参数
@@ -42,7 +42,7 @@
 |:--------|:-----------|:---------|
 | `success` | boolean | 请求是否成功 |
 
-#### 请求示例
+#### 响应示例
 ```json
 {
   "success": true
@@ -51,34 +51,28 @@
 
  ### 2. 获取性能数据接口
  - **请求方法**：`GET `
- - **接口地址**：`/api/performance`
+ - **接口地址**：`/api/get_pref`
 - **功能描述**：从 **InfluxDB** 数据库中查询最近的网页性能数据。
 
 #### 请求参数
-
 | 参数名 | 类型 | 是否必填 | 描述 |
 | ---- | ---- | ---- | ---- |
-| `limit` | number | 否 | 查询结果的最大数量，默认值为 100 |
+| `limit` | number | 否 | 查询结果的最大数量，默认值为 100，即最多显示100条数据 |
+| `rangeTime` | number | 否 | 查询的时间范围，默认值为 7，即过去七天的数据 |
+| `startTime` | 日期字符串格式例如：`2025/02/12 12:30:00`或 `2025-02-12T12:30:00.000Z` | 否 | 查询时间范围的开始时间 |
+| `endTime` | 日期字符串格式例如：`2025/02/12 13:30:00`或 `2025-02-12T13:30:00.000Z` | 否 | 查询时间范围的结束时间 |
+#### 注意！ 不可同时输入 `rangeTime`和 (`startTime,endTime`)要么只输入 `rangeTime`，要么只输入`startTime`和`endTime`，`startTime`和`endTime`两者的日期格式必须相同！开始日期必须小于结束日期!
 
 #### 请求示例
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "timestamp": "2025-02-10T12:00:00Z",
-      "type": "performance",
-      "field": "ttfb",
-      "value": 100,
-      "device": "desktop",
-      "browser": "Chrome"
-    }
-  ]
-}
-```
+`http://localhost:5500/api/get_pref?rangeTime=10`
+或
+`http://localhost:5500/api/get_pref?startTime=2025/02/12 12:30:00&endTime=2025/02/12 13:30:00`
+或
+`http://localhost:5500/api/get_pref?startTime=2025-02-12T12:30:00.000Z&endTime=2025-02-12T13:30:00.000Z`
 
 ### 2. 白屏URL上报接口
- - **接口地址**：`POST /api/page-view`
+ - **请求方法**：`POST`
+ - **接口地址**：`/api/page-view`
 - **功能描述**：接收客户端上报的页面浏览事件，并将其写入 **InfluxDB** 数据库。
 #### 请求参数
 | 参数名 | 类型 | 是否必填 | 描述 |

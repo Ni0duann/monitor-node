@@ -27,20 +27,58 @@ class PerfController {
     async getPerformance(ctx) {
         try {
             const limit = parseInt(ctx.query.limit) || 100;
-            const rangeTime = parseInt(ctx.query.rangeTime) || 30; 
-            if (isNaN(rangeTime) || rangeTime <= 0) {
-                ctx.status = 400;
-                ctx.body = { error: 'rangeTime参数必须是正整数！' };
-                return;
-            }
-            const query = `
-        from(bucket: "monitor data")
-          |> range(start: -${rangeTime}d)
-          |> filter(fn: (r) => r._measurement == "performanceData")
-          |> sort(columns: ["_time"], desc: true)
-          |> limit(n: ${limit})
-      `;
 
+            let startRange = null;
+            let endRange = null;
+            if (ctx.query.startTime && ctx.query.endTime) {
+                startRange = new Date(ctx.query.startTime);
+                endRange = new Date(ctx.query.endTime);
+
+                // 检查时间是否有效
+                if (isNaN(startRange.getTime()) || isNaN(endRange.getTime())) {
+                    ctx.status = 400;
+                    ctx.body = { error: '开始时间或结束时间格式不正确！' };
+                    return;
+                }
+
+                // 检查开始时间是否早于结束时间
+                if (startRange >= endRange) {
+                    ctx.status = 400;
+                    ctx.body = { error: '开始时间必须早于结束时间！' };
+                    return;
+                }
+
+            }else{
+                // 如果没有传入开始时间和结束时间，使用默认的 rangeTime
+                const rangeTime = parseInt(ctx.query.rangeTime) || 7; 
+                if (isNaN(rangeTime) || rangeTime <= 0) {
+                    ctx.status = 400;
+                    ctx.body = { error: 'rangeTime参数必须是正整数！' };
+                    return;
+                }
+                startRange = `-${rangeTime}d`;
+            }
+
+            let query;
+            if (typeof startRange === 'string') {
+                // 若没有开始和结束时间则 使用 rangeTime 的情况
+                query = `
+                    from(bucket: "monitor data")
+                      |> range(start: ${startRange})
+                      |> filter(fn: (r) => r._measurement == "performanceData")
+                      |> sort(columns: ["_time"], desc: true)
+                      |> limit(n: ${limit})
+                `;
+            } else {
+                // 使用开始时间和结束时间的情况
+                query = `
+                    from(bucket: "monitor data")
+                      |> range(start: ${startRange.toISOString()}, stop: ${endRange.toISOString()})
+                      |> filter(fn: (r) => r._measurement == "performanceData")
+                      |> sort(columns: ["_time"], desc: true)
+                      |> limit(n: ${limit})
+                `;
+            }
             const data = await influxService.queryData(query);
             ctx.body = { success: true, data };
         } catch (err) {
