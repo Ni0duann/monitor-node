@@ -35,7 +35,6 @@ console.log({timestamp,pagePath,datatype,addCount})
             const {
                 pagePath,
                 datatype,
-                rangeTime,
                 // os = 'Windows',
                 // device_type = 'desktop',
                 // browser = 'Chrome',
@@ -44,7 +43,8 @@ console.log({timestamp,pagePath,datatype,addCount})
                 device_type = 'All',
                 browser = 'All',
                 ip = 'All'
-            } = ctx.query;
+            } = ctx.query; 
+            const rangeTime = ctx.query.rangeTime||7
             console.log('ctx.query', ctx.query)
             // console.log('ctx.request.body',ctx.request.body)
             if ( !pagePath || !datatype || !rangeTime || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {

@@ -181,16 +181,19 @@
 #### 请求参数
 | 参数名 | 类型 | 是否必填 | 描述 |
 | ---- | ---- | ---- | ---- |
-| `page_path` | string | 是 | 页面路径 |
-| `browser` | string | 是 | 浏览器名称 |
-| `os` | string | 是 | 操作系统名称 |
-| `device_type` | string | 是 | 设备类型 |
-| `timestamp` | string | 是 | 浏览时间戳 |
+| `page_path` | string | 是 | 页面路径除了`page1` `page2` `page3`还有`total`代表所有页面总的白屏次数 |
+| `rangeTime` | number | 否 | 查询的时间范围，默认值为 7，即过去七天的数据 |
+| `browser` | string | 否 | 浏览器名称 |
+| `os` | string | 否 | 操作系统名称 |
+| `device_type` | string | 否 | 设备类型 |
+| `timestamp` | string | 否 | 浏览时间戳 |
 
 #### 请求示例
 `http://localhost:5500/api/get/WhiteScreen?pageUrl=page2`
 或
 `http://localhost:5500/api/get/WhiteScreen?pageUrl=page1&rangeTime=3`
+或
+`http://localhost:5500/api/get/WhiteScreen?rangeTime=3&pageUrl=total`
 
 #### 响应参数
 | 参数名 | 类型 | 描述 |
@@ -199,6 +202,7 @@
 | `data` | Array | 根据要求返回的数据 |
 
 #### 响应示例
+**若为子页面查询：**
 ```json
 {
     "success": true,
@@ -206,12 +210,20 @@
         {
             "result": "_result",
             "table": 0,
-            "_start": "2025-02-10T15:57:15.7834214Z",
-            "_stop": "2025-02-11T15:57:15.7834214Z",
-            "_value": 4,
+            "_start": "2025-02-09T06:17:40.0827487Z",
+            "_stop": "2025-02-12T06:17:40.0827487Z",
+            "_value": 7,
             "pageUrl": "page1"
         }
     ]
+}
+```
+
+**若为total查询：**
+```json
+{
+    "success": true,
+    "totalCount": 14
 }
 ```
 
@@ -227,6 +239,11 @@
 
 #### 请求示例
 ```json
+{
+      "pagePath": "page2",
+      "datatype": "pv"
+}
+
 {
       "pagePath": "page3",
       "datatype": "uv"
