@@ -10,7 +10,7 @@ function transformData(data, userInfo) {
     const pvuvPoint = new Point('flowData')
         .timestamp(timestamp)
         .tag('pagePath', data.pagePath)
-        .tag('datatype', data.datatype)
+        .tag('datatype', 'pv')
         .tag('uuid', commonTags.uuid)
         // .tag('ip', commonTags.ip || 'Unknown')
         // .tag('browser', commonTags.browser || 'Unknown')

@@ -35,7 +35,7 @@ class PvuvController {
             // const { pagePath, dataType, os = 'Unknown', device_type = 'All', browser = 'All', ip = 'All' } = ctx.query;
             const { pagePath, dataType, os = 'Unknown', device_type = 'desktop', browser = 'Unknown', ip = '::1' } = ctx.query;
             const rangeTime = ctx.query.rangeTime || 7;
-
+            console.log('@@@@@@@@',{ pagePath, dataType, os, device_type, browser, ip  } )
             if (!pagePath || !dataType || !['pv', 'uv'].includes(dataType)) {
                 ctx.status = 400;
                 ctx.body = { error: '参数错误！必须提供pagePath和有效的dataType。' };
@@ -43,14 +43,10 @@ class PvuvController {
             }
 
             // 构造基础过滤条件
-            let filterConditions = `r._measurement == "flowData" and r.dataType == "pv"`;
+            let filterConditions = `r._measurement == "flowData" `;
             if (pagePath !== 'total') {
                 filterConditions += ` and r.pagePath == "${pagePath}"`;
             }
-            // if (os !== 'All') filterConditions += ` and r.os == "${os}"`;
-            // if (device_type !== 'All') filterConditions += ` and r.device_type == "${device_type}"`;
-            // if (browser !== 'All') filterConditions += ` and r.browser == "${browser}"`;
-            // if (ip !== 'All') filterConditions += ` and r.ip == "${ip}"`;
 
             if (os !== 'All') filterConditions += ` and r.os == "${os}"`;
             if (device_type !== 'All') filterConditions += ` and r.device_type == "${device_type}"`;
@@ -77,6 +73,7 @@ class PvuvController {
             }
 
             const data = await influxService.queryData(query);
+            console.log('查询到的数据:', data); // 输出查询到的数据
             const totalCount = data.reduce((acc, curr) => acc + (curr._value || 0), 0);
 
             ctx.body = { success: true, totalCount };
