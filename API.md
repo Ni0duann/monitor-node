@@ -234,18 +234,16 @@
 | 参数名 | 类型 | 是否必填 | 描述 |
 | ---- | ---- | ---- | ---- |
 | `pagePath` | string | 是 | 页面名称，取值为 `page1` `page2` `page3`（代表是子页面Page1或2，3的数据） |
-| `dataType` | string | PV 和 UV 数据对象,如`pv` `uv` |
+<!-- | `dataType` | string | PV 和 UV 数据对象,如`pv` `uv` | -->
 
 #### 请求示例
 ```json
 {
-      "pagePath": "page2",
-      "datatype": "pv"
+      "pagePath": "page2"
 }
 
 {
-      "pagePath": "page3",
-      "datatype": "uv"
+      "pagePath": "page3"
 }
 ```
 
