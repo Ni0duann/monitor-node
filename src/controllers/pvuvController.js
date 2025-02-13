@@ -35,7 +35,6 @@ class PvuvController {
             // const { pagePath, dataType, os = 'Unknown', device_type = 'All', browser = 'All', ip = 'All' } = ctx.query;
             const { pagePath, dataType, os = 'Unknown', device_type = 'desktop', browser = 'Unknown', ip = '::1' } = ctx.query;
             const rangeTime = ctx.query.rangeTime || 7;
-            console.log('@@@@@@@@',{ pagePath, dataType, os, device_type, browser, ip  } )
             if (!pagePath || !dataType || !['pv', 'uv'].includes(dataType)) {
                 ctx.status = 400;
                 ctx.body = { error: '参数错误！必须提供pagePath和有效的dataType。' };
@@ -75,7 +74,6 @@ class PvuvController {
             const data = await influxService.queryData(query);
             console.log('查询到的数据:', data); // 输出查询到的数据
             const totalCount = data.reduce((acc, curr) => acc + (curr._value || 0), 0);
-
             ctx.body = { success: true, totalCount };
         } catch (err) {
             ctx.status = 500;
