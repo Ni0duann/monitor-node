@@ -32,7 +32,8 @@ class PvuvController {
     //可以根据
     async getPvUv(ctx) {
         try {
-            const { pagePath, dataType, os = 'All', device_type = 'All', browser = 'All', ip = 'All' } = ctx.query;
+            // const { pagePath, dataType, os = 'Unknown', device_type = 'All', browser = 'All', ip = 'All' } = ctx.query;
+            const { pagePath, dataType, os = 'Unknown', device_type = 'desktop', browser = 'Unknown', ip = '::1' } = ctx.query;
             const rangeTime = ctx.query.rangeTime || 7;
 
             if (!pagePath || !dataType || !['pv', 'uv'].includes(dataType)) {
@@ -46,6 +47,11 @@ class PvuvController {
             if (pagePath !== 'total') {
                 filterConditions += ` and r.pagePath == "${pagePath}"`;
             }
+            // if (os !== 'All') filterConditions += ` and r.os == "${os}"`;
+            // if (device_type !== 'All') filterConditions += ` and r.device_type == "${device_type}"`;
+            // if (browser !== 'All') filterConditions += ` and r.browser == "${browser}"`;
+            // if (ip !== 'All') filterConditions += ` and r.ip == "${ip}"`;
+
             if (os !== 'All') filterConditions += ` and r.os == "${os}"`;
             if (device_type !== 'All') filterConditions += ` and r.device_type == "${device_type}"`;
             if (browser !== 'All') filterConditions += ` and r.browser == "${browser}"`;
