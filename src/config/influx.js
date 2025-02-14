@@ -1,6 +1,6 @@
 module.exports = {
-    url: 'http://127.0.0.1:8086',
-    token: 'zcxZEZxqKFcStrfTXY2aOS9Lb_43Z8JYp2Cg1PUFPQk1Y8ElVgCtu2mz0O2hsqfPHfI49tyrNQp65ID1yGwY_g==',
-    org: 'Dance',
+    url: 'https://us-east-1-1.aws.cloud2.influxdata.com',
+    token: 'IepeqlbHv8TeEu3pbKW3ECgBNUYl23Z-9V5i_GxtxXTNB0X2FB3x3B1vsH4H7YMBH4hlNH85varG6As_nY_2gg==',
+    org: 'Ni0duann',
     bucket: 'monitor data'
 };
