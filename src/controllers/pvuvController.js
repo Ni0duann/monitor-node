@@ -4,9 +4,12 @@ const influxService = require('../services/influxService');
 class PvuvController {
     async updatePvUv(ctx) {
         try {
-            const pagePath = ctx.request.body.pagePath;
+            const FlowDataParams = ctx.request.body; 
+            const { pagePath, os, browser, deviceType } = FlowDataParams
             const timestamp = new Date().toISOString();
             const addCount = ctx.request.body.addCount || 1;
+            // console.log('收到的参数:', ctx.request.body); // 输出收到的参数
+            // console.log('pagePath', pagePath)
             if (!pagePath) {
                 ctx.status = 400;
                 ctx.body = { error: '缺少必须参数pagePath！' };
@@ -15,7 +18,8 @@ class PvuvController {
             const point = transformData({
                 timestamp,
                 pagePath,
-                addCount
+                addCount,
+                os, browser, deviceType
             }, ctx.state);
             console.log('写入的数据点:', point); // 输出写入的数据点
             await influxService.writePoints([point]);
@@ -31,9 +35,8 @@ class PvuvController {
 
     //可以根据
     async getPvUv(ctx) {
-        try {
-            // const { pagePath, dataType, os = 'Unknown', device_type = 'All', browser = 'All', ip = 'All' } = ctx.query;
-            const { pagePath, dataType, os = 'Unknown', device_type = 'desktop', browser = 'Unknown', ip = '::1' } = ctx.query;
+        try {       
+            const { pagePath, dataType, os = 'Windows',device_type = 'Desktop',browser = 'Chrome',ip = '::1' } = ctx.query;          
             const rangeTime = ctx.query.rangeTime || 7;
             if (!pagePath || !dataType || !['pv', 'uv'].includes(dataType)) {
                 ctx.status = 400;
@@ -47,10 +50,11 @@ class PvuvController {
                 filterConditions += ` and r.pagePath == "${pagePath}"`;
             }
 
-            if (os !== 'All') filterConditions += ` and r.os == "${os}"`;
-            if (device_type !== 'All') filterConditions += ` and r.device_type == "${device_type}"`;
-            if (browser !== 'All') filterConditions += ` and r.browser == "${browser}"`;
-            if (ip !== 'All') filterConditions += ` and r.ip == "${ip}"`;
+            // 添加可选项的过滤条件
+            filterConditions += ` and r.os == "${os}"`;
+            filterConditions += ` and r.device_type == "${device_type}"`;
+            filterConditions += ` and r.browser == "${browser}"`;
+            filterConditions += ` and r.ip == "${ip}"`;
 
             // 根据dataType构建查询语句
             let query;
