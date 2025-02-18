@@ -58,6 +58,7 @@ class PvuvController {
 
             // 根据dataType构建查询语句
             let query;
+            let totalCount
             if (dataType === 'pv') {
                 query = `
                     from(bucket: "monitor data")
@@ -65,6 +66,8 @@ class PvuvController {
                         |> filter(fn: (r) => ${filterConditions})
                         |> sum(column: "_value")
                 `;
+                const data = await influxService.queryData(query);
+                totalCount = data.reduce((acc, curr) => acc + (curr._value || 0), 0);
             } else { // uv处理
                 query = `
                     from(bucket: "monitor data")
@@ -73,11 +76,17 @@ class PvuvController {
                         |> distinct(column: "ip")
                         |> count()
                 `;
+                const data = await influxService.queryData(query);
+                if (data.length > 0) {
+                    totalCount = data[0]._value || 0;
+                } else {
+                    totalCount = 0;
+                }
             }
-
-            const data = await influxService.queryData(query);
-            console.log('查询到的数据:', data); // 输出查询到的数据
-            const totalCount = data.reduce((acc, curr) => acc + (curr._value || 0), 0);
+            
+            // const data = await influxService.queryData(query);
+            console.log('查询到的pvuvssssssss数据:', data); // 输出查询到的数据
+            // const totalCount = data.reduce((acc, curr) => acc + (curr._value || 0), 0);
             ctx.body = { success: true, totalCount };
         } catch (err) {
             ctx.status = 500;

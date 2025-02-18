@@ -64,7 +64,7 @@ class PerfController {
             if (typeof startRange === 'string') {
                 // 若没有开始和结束时间则 使用 rangeTime 的情况
                 query = `
-                    from(bucket: "monitor")
+                    from(bucket: "monitor data")
                       |> range(start: ${startRange})
                       |> filter(fn: (r) => r._measurement == "performanceData")
                       |> sort(columns: ["_time"], desc: true)
@@ -73,7 +73,7 @@ class PerfController {
             } else {
                 // 使用开始时间和结束时间的情况
                 query = `
-                    from(bucket: "monitor")
+                    from(bucket: "monitor data")
                       |> range(start: ${startRange.toISOString()}, stop: ${endRange.toISOString()})
                       |> filter(fn: (r) => r._measurement == "performanceData")
                       |> sort(columns: ["_time"], desc: true)

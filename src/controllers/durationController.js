@@ -37,7 +37,7 @@ class DurationController {
             `;
 
             const data = await influxService.queryData(query);
-
+// console.log('访问时长数据：',data)
             ctx.body = { success: true, data };
         } catch (err) {
             ctx.status = 500;
