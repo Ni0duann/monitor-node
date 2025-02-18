@@ -5,7 +5,8 @@ class PerfController {
     async pushPerformance(ctx) {
         try {
             const { performance } = ctx.request.body;
-            if (!performance?.ttfb || !performance?.lcpRenderTime || !performance?.fcpStartTime) {
+            // 修改字段检查以匹配前端数据结构
+            if (!performance?.ttfb || !performance?.lcpRenderTime || !performance?.fcp) {
                 ctx.status = 400;
                 ctx.body = { error: '缺少关键性能指标（TTFB/LCP/FCP）！' };
                 return;
@@ -48,9 +49,9 @@ class PerfController {
                     return;
                 }
 
-            }else{
+            } else {
                 // 如果没有传入开始时间和结束时间，使用默认的 rangeTime
-                const rangeTime = parseInt(ctx.query.rangeTime) || 7; 
+                const rangeTime = parseInt(ctx.query.rangeTime) || 7;
                 if (isNaN(rangeTime) || rangeTime <= 0) {
                     ctx.status = 400;
                     ctx.body = { error: 'rangeTime参数必须是正整数！' };
@@ -63,7 +64,7 @@ class PerfController {
             if (typeof startRange === 'string') {
                 // 若没有开始和结束时间则 使用 rangeTime 的情况
                 query = `
-                    from(bucket: "monitor data")
+                    from(bucket: "monitor")
                       |> range(start: ${startRange})
                       |> filter(fn: (r) => r._measurement == "performanceData")
                       |> sort(columns: ["_time"], desc: true)
@@ -72,7 +73,7 @@ class PerfController {
             } else {
                 // 使用开始时间和结束时间的情况
                 query = `
-                    from(bucket: "monitor data")
+                    from(bucket: "monitor")
                       |> range(start: ${startRange.toISOString()}, stop: ${endRange.toISOString()})
                       |> filter(fn: (r) => r._measurement == "performanceData")
                       |> sort(columns: ["_time"], desc: true)
