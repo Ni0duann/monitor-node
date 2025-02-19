@@ -4,7 +4,7 @@ const influxService = require('../services/influxService');
 class PvuvController {
     async updatePvUv(ctx) {
         try {
-            const FlowDataParams = ctx.request.body; 
+            const FlowDataParams = ctx.request.body;
             const { pagePath, os, browser, deviceType } = FlowDataParams
             const timestamp = new Date().toISOString();
             const addCount = ctx.request.body.addCount || 1;
@@ -35,8 +35,8 @@ class PvuvController {
 
     //可以根据
     async getPvUv(ctx) {
-        try {       
-            const { pagePath, dataType, os = 'Windows',device_type = 'Desktop',browser = 'Chrome',ip = '::1' } = ctx.query;          
+        try {
+            const { pagePath, dataType, os = 'Windows', device_type = 'Desktop', browser = 'Chrome', ip = '::1' } = ctx.query;
             const rangeTime = ctx.query.rangeTime || 7;
             if (!pagePath || !dataType || !['pv', 'uv'].includes(dataType)) {
                 ctx.status = 400;
@@ -58,6 +58,7 @@ class PvuvController {
 
             // 根据dataType构建查询语句
             let query;
+            let data
             let totalCount
             if (dataType === 'pv') {
                 query = `
@@ -66,27 +67,28 @@ class PvuvController {
                         |> filter(fn: (r) => ${filterConditions})
                         |> sum(column: "_value")
                 `;
-                const data = await influxService.queryData(query);
+                data = await influxService.queryData(query);
                 totalCount = data.reduce((acc, curr) => acc + (curr._value || 0), 0);
+
             } else { // uv处理
                 query = `
                     from(bucket: "monitor data")
                         |> range(start: -${rangeTime}d)
                         |> filter(fn: (r) => ${filterConditions})
+                        // 按照时间排序，确保最早的记录排在前面
+                        |> sort(columns: ["_time"], desc: false)
+                        // 取每个分组的第一条记录
+                        |> first()
+                        // 去重 IP 地址
                         |> distinct(column: "ip")
                         |> count()
                 `;
-                const data = await influxService.queryData(query);
-                if (data.length > 0) {
-                    totalCount = data[0]._value || 0;
-                } else {
-                    totalCount = 0;
-                }
+                console.log('UV 查询语句:', query);
+                data = await influxService.queryData(query);
+                totalCount = data.length > 0 ? data[0]._value : 0;
             }
-            
-            // const data = await influxService.queryData(query);
-            console.log('查询到的pvuvssssssss数据:', data); // 输出查询到的数据
-            // const totalCount = data.reduce((acc, curr) => acc + (curr._value || 0), 0);
+
+            console.log('查询到的pvuvssssssss数据:', data); // 输出查询到的数据      
             ctx.body = { success: true, totalCount };
         } catch (err) {
             ctx.status = 500;
