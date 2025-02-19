@@ -22,6 +22,7 @@ class WhiteScreenController {
         try {
             const pageUrl = ctx.query.pageUrl;
             const rangeTime = ctx.query.rangeTime ||7;
+            console.log('pageUrl:', pageUrl); // 添加日志输出
             // 检查参数是否有效
             if (!pageUrl || isNaN(parseInt(rangeTime)) || parseInt(rangeTime) <= 0) {
                 ctx.status = 400;

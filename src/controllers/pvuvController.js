@@ -83,12 +83,12 @@ class PvuvController {
                         |> distinct(column: "ip")
                         |> count()
                 `;
-                console.log('UV 查询语句:', query);
+              
                 data = await influxService.queryData(query);
                 totalCount = data.length > 0 ? data[0]._value : 0;
             }
 
-            console.log('查询到的pvuvssssssss数据:', data); // 输出查询到的数据      
+            // console.log('查询到的pvuvssssssss数据:', data); // 输出查询到的数据      
             ctx.body = { success: true, totalCount };
         } catch (err) {
             ctx.status = 500;
